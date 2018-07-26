@@ -1,0 +1,27 @@
+section signature
+
+const 0
+
+function s 1
+
+infixl "+" 40
+infixl "-" 40
+prefix "-" 45
+infixl "*" 50
+
+const x
+function deriv 1
+
+end signature
+
+
+section rules
+
+rule "+"(X,"0"()) -> X
+rule "+"(X,"s"(Y)) -> "+"("s"(X),Y)     
+rule "+"("s"(X),"-"("s"(Y))) -> "+"(X,"-"(Y))    
+rule "+"("0"(),"-"(Y)) -> "-"(Y)  
+
+
+end rules
+

@@ -1,0 +1,5 @@
+compile
+run
+run arith.trs
+compile
+run arith.trs
