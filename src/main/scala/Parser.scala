@@ -13,12 +13,12 @@ object Parser extends JavaTokenParsers{
      rep(constant | function | operator) ^^ { Map() ++ _}
 
   def constant: Parser[(String,Operation)] =
-    "const" ~> (ident | wholeNumber) ^^ {
+    "const" ~> stringLiteral ^^ {
       name => (name,constOp(name))
     }
 
   def function: Parser[(String,Operation)] =
-    "function" ~> ident ~ wholeNumber ^^ {
+    "function" ~> stringLiteral ~ wholeNumber ^^ {
       case name ~ arity => (name,FunOp(name,arity.toInt))
     }
 
@@ -50,14 +50,14 @@ object Parser extends JavaTokenParsers{
       case s ~ rs => (s,rs)
     }
 
+  //TODO: change this return type
   def parseTRSFile(fileName: String): (Map[String,Operation],List[Rule]) = {
     val reader = new FileReader(fileName)
     //TODO: transform(terms)
     //TODO: error handling
     parseAll(parser,reader) match{
       case Success(r,_) =>
-        checkRules(r._2) //TODO: check that rules are well constructed
-        (r._1,r._2)
+        if(checkRules(r._1,r._2)) (r._1,r._2) else (Map(),List())
       case Failure(msg,_) =>
         println("Parser failed with output: " + msg); (Map(),List())
     }
@@ -72,8 +72,32 @@ object Parser extends JavaTokenParsers{
     | ("match " ~> term) ~ (" to " ~> term) ^^ { case t1 ~ t2 => (t1,t2) }
   )
 
-  def checkRules(rs: List[Rule]): Boolean =
-  def checkTerm(t: Term): Boolean = {
+  //There is no need to check there are no two functions with same name
+  def checkRules(ops: Map[String,Operation],rs: List[Rule]): Boolean = {
+    val trs = new TRS(ops,rs)
+    rs.forall(r => checkTerm(trs,r.left) && checkTerm(trs,r.right))
+  }
 
+  //TODO: improve check
+  def checkTerm(trs: TRS,t: Term): Boolean = t match {
+    case Var(_) => true
+    case op@Fun(n,args) =>
+      args.forall(checkTerm(trs,_)) && trs.ops.keySet.contains(n) && opArity(trs.ops(n)) == args.length
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

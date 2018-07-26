@@ -1,6 +1,6 @@
 package rewriter
 
-import rewriter.Parser.{parseTRSFile,ParseResult,Success,Failure,consoleTerm,consoleTerms,parseAll}
+import rewriter.Parser.{parseTRSFile,ParseResult,Success,Failure,consoleTerm,consoleTerms,parseAll,checkTerm}
 import rewriter.Printer.{prettyPrintRule,prettyPrintSubst,prettyPrint,prettyPrintTrace}
 import rewriter.TRS.TRS
 import rewriter.Rewriter.{Term,applySubst,unify,mmatch,rewrite,rewriteTrace,normalise,normaliseTrace}
@@ -11,7 +11,7 @@ object Console {
 
   val commands = List("help", "rules", "term", "unify", "match", "rewrite", "trace", "normalise",
     "normalise_trace", "critical_pairs", "locally_confluent", "quit")
-  val helpMessage = "Available commands:" ++ commands.flatMap(_ ++ "\n") ++ "\n"
+  val helpMessage = "Available commands:" ++ commands.flatMap("\n" ++ _)
   //TODO: see if this is the right structure for the list
   val commandHelpMessages = List(
     "help <command>\n"++
@@ -65,7 +65,7 @@ object Console {
 
   //TODO: check ops should be trs?
   def doShowRules(trs: TRS): Unit = trs match {
-    case TRS(ops,rs) =>  println(rs.map(prettyPrintRule(ops,_)).mkString("\n"))
+    case TRS.TRS(ops,rs) =>  println(rs.map(prettyPrintRule(ops.values.toList,_)).mkString("\n"))
   }
 
   def doShowTerm(o: Option[Term]): Option[Term] = o match{
@@ -82,8 +82,8 @@ object Console {
       case Right(s) =>
         val ct = applySubst(s,t1)
         //TODO: check printing with ops instead of trs
-        println("Most general unifier:\n" ++ prettyPrintSubst(trs.ops,s) ++ "\n\n" ++
-          "Corresponding term: " ++ prettyPrint(trs.ops,ct))
+        println("Most general unifier:\n" ++ prettyPrintSubst(trs.ops.values.toList,s) ++ "\n\n" ++
+          "Corresponding term: " ++ prettyPrint(trs.ops.values.toList,ct))
         Some(ct)
     }
   }
@@ -95,7 +95,7 @@ object Console {
     case Some((_,None)) => println("Second term provided is invalid")
     case Some((Some(t1),Some(t2))) => mmatch(t1,t2) match{
       case Left(e) => println("No matchers: " ++ e.print)
-      case Right(s) => println("Matcher:\n" ++ prettyPrintSubst(trs.ops,s))
+      case Right(s) => println("Matcher:\n" ++ prettyPrintSubst(trs.ops.values.toList,s))
     }
   }
 
@@ -106,7 +106,7 @@ object Console {
       ts match{
         case Nil => println("Term is already in normal form."); None
         case r :: _ =>
-          println((List.range(1,ts.length) ,ts.map(prettyPrint(trs.ops,_))).zipped.map((a,b) => a.toString ++ ": " ++ b).mkString("\n"))
+          println((List.range(1,ts.length) ,ts.map(prettyPrint(trs.ops.values.toList,_))).zipped.map((a,b) => a.toString ++ ": " ++ b).mkString("\n"))
           Some(r)
       }
   }
@@ -117,7 +117,7 @@ object Console {
       val traces = rewriteTrace(trs.rs,t)
       traces match{
         case Nil => println("No result."); None
-        case _ => println((List.range(1,traces.length),traces.map(prettyPrintTrace(trs.ops,_))).zipped.map(
+        case _ => println((List.range(1,traces.length),traces.map(prettyPrintTrace(trs.ops.values.toList,_))).zipped.map(
           (a,b) => "Trace " ++ a.toString ++ ":\n" ++ b).mkString("\n\n"))
           None
       }
@@ -125,16 +125,16 @@ object Console {
 
   def doNormalise(trs: TRS,o: Option[Term]): Option[Term] = o match{
     case None => println("Term provided is invalid"); None
-    case Some(t) => println(prettyPrint(trs.ops,normalise(trs.rs,t))); None
+    case Some(t) => println(prettyPrint(trs.ops.values.toList,normalise(trs.rs,t))); None
   }
 
   def doNormaliseTrace(trs: TRS,o: Option[Term]): Option[Term] = o match{
     case None => println("Term provided is invalid"); None
-    case Some(t) => println(prettyPrintTrace(trs.ops,normaliseTrace(trs.rs,t))); None
+    case Some(t) => println(prettyPrintTrace(trs.ops.values.toList,normaliseTrace(trs.rs,t))); None
   }
 
   def doCriticalPairs(trs: TRS): Unit = {
-    def pretty(t: Term) = prettyPrint(trs.ops,t)
+    def pretty(t: Term) = prettyPrint(trs.ops.values.toList,t)
     def formatPair(i: Integer,trip: (Term,Term,Term)): String = trip match { case (s,t1,t2) =>
       "Critical pair " ++ i.toString ++ ":\n" ++
       pretty(s) ++ " → " ++ pretty(t1) ++ "\n" ++
@@ -152,7 +152,7 @@ object Console {
   }
 
   def doLocallyConfluent(trs: TRS,verbose: Boolean): Unit = {
-    def pretty(t: Term) = prettyPrint(trs.ops, t)
+    def pretty(t: Term) = prettyPrint(trs.ops.values.toList, t)
 
     def formatPair(i: Integer, quint: (Term,Term,Term,Term,Term)) = quint match { case (s, t1, t2, n1, n2) =>
       "Unjoinable critical pair " ++ i.toString ++ ":\n" ++
@@ -178,44 +178,46 @@ object Console {
   }
 
   def extractTerm(trs: TRS,s: String): Option[Term] = parseAll(consoleTerm,s) match{
-    case Success(t,_) => Some(t)
+    case Success(t,_) =>
+      if(checkTerm(trs,t)) Some(t) else None
     case Failure(msg,_) => println(msg); None
   }
 
   // Case to manage: unify t1 and t2, match t1 to t2
   def extractTerms(trs: TRS,s: String,sep: String): Option[(Option[Term],Option[Term])] = parseAll(consoleTerms,s) match{
-    case Success((t1,t2),_) => Some(Some(t1),Some(t2))
+    case Success((t1,t2),_) =>
+      if(checkTerm(trs,t1) && checkTerm(trs,t2)) Some(Some(t1),Some(t2)) else None
     case Failure(msg,_) => println(msg); None
   }
 
 
   def commandLoop(trs: TRS,last: Option[Term]): Unit = {
     val str = readLine("TRS> ", Nil)
-    str.toLowerCase().split(" ") match {
+    str.toLowerCase().split(" ").toList match {
       // Generic cases
       case Nil => commandLoop(trs, last)
       case List("quit",_*) => ()
-      case List("help", Nil) => println(helpMessage); commandLoop(trs, last)
+      case List("help") => println(helpMessage); commandLoop(trs, last)
       case List("help",cmd: String,_*) => doHelp(cmd); commandLoop(trs, last)
       case List("rules",_*) => doShowRules(trs); commandLoop(trs, last)
       // Cases that use a previously parsed term
-      case List("term", Nil) => last match {
+      case List("term") => last match {
         case None => println("No current result. Type 'term <term>'"); commandLoop(trs, None)
         case Some(t) => commandLoop(trs, doShowTerm(Some(t)))
       }
-      case List("rewrite", Nil) => last match {
+      case List("rewrite") => last match {
         case None => println("No current result. Type 'rewrite <term>'"); commandLoop(trs, None)
         case Some(t) => commandLoop(trs, doRewrite(trs, Some(t)))
       }
-      case List("trace", Nil) => last match {
+      case List("trace") => last match {
         case None => println("No current result. Type 'trace <term>'"); commandLoop(trs, None)
         case Some(t) => commandLoop(trs, doTrace(trs, Some(t)))
       }
-      case List("normalise", Nil) => last match {
+      case List("normalise") => last match {
         case None => println("No current result. Type 'normalise <term>'"); commandLoop(trs, None)
         case Some(t) => commandLoop(trs, doNormalise(trs, Some(t)))
       }
-      case List("normalise_trace", Nil) => last match {
+      case List("normalise_trace") => last match {
         case None => println("No current result. Type 'normalise_trace <term>'"); commandLoop(trs, None)
         case Some(t) => commandLoop(trs, doNormaliseTrace(trs, Some(t)))
       }
@@ -238,11 +240,11 @@ object Console {
    if (args.length < 1) {
      println("Usage: rewrite <TRS file>")
    } else {
-     val parseResult = Parser.parseTRSFile(args(0))
+     val parseResult = parseTRSFile(args(0))
      if (parseResult._1.isEmpty && parseResult._2.isEmpty) {
        println("Parsing did not provide rewrite rules or function symbols")
      } else {
-       val trs = new TRS(parseResult._1.values.toList, parseResult._2)
+       val trs = new TRS(parseResult._1, parseResult._2)
        commandLoop(trs, None)
      }
    }

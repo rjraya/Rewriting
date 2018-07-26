@@ -20,7 +20,7 @@ object TRS {
   case class PostfixOp(n: String,i: Integer) extends Operation{ def print: String = "postfix " ++ n ++ " " ++ i.toString() }
   case class InfixOp(n: String,a: Assoc.Assoc,i: Integer) extends Operation{ def print: String = "infixl " ++ n ++ " " ++ i.toString() }
 
-  case class TRS(ops: List[Operation],rs: List[Rule])
+  case class TRS(ops: Map[String,Operation],rs: List[Rule])
 
   def constOp(s: String) = FunOp(s,0)
 

@@ -1,16 +1,16 @@
 section signature
 
-const 0
+const "0"
 
-function s 1
+function "s" 1
 
 infixl "+" 40
 infixl "-" 40
 prefix "-" 45
 infixl "*" 50
 
-const x
-function deriv 1
+const "x"
+function "deriv" 1
 
 end signature
 

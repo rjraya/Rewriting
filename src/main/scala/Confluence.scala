@@ -25,9 +25,8 @@ object Confluence {
     val v1 = variablesHashSet(r1.left) | variablesHashSet(r1.right)
     val v2 = variablesHashSet(r2.left) | variablesHashSet(r2.right)
     val m = makeVarRenaming(v1,v2.toList)
-    val renameRuleVarsRec = renameRuleVars(x => m.getOrElse(x,x))
 
-    (r1,renameRuleVarsRec(r2))
+    (r1,renameRuleVars(x => m.getOrElse(x,x))(r2))
   }
 
   //TODO: check whether the unifyOption match is well-done
