@@ -1,4 +1,4 @@
-section signature
+begin signature
 
 const "0"
 
@@ -14,14 +14,12 @@ function "deriv" 1
 
 end signature
 
-
-section rules
+begin rules
 
 rule "+"(X,"0"()) -> X
-rule "+"(X,"s"(Y)) -> "+"("s"(X),Y)     
-rule "+"("s"(X),"-"("s"(Y))) -> "+"(X,"-"(Y))    
-rule "+"("0"(),"-"(Y)) -> "-"(Y)  
-
+rule "+"(X,"s"(Y)) -> "+"("s"(X),Y)
+rule "+"("s"(X),"-"("s"(Y))) -> "+"(X,"-"(Y))
+rule "+"("0"(),"-"(Y)) -> "-"(Y)
 
 end rules
 

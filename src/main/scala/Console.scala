@@ -1,6 +1,6 @@
 package rewriter
 
-import rewriter.Parser.{parseTRSFile,ParseResult,Success,Failure,consoleTerm,consoleTerms,parseAll,checkTerm}
+//import rewriter.Parser.{parseTRSFile,ParseResult,Success,Failure,consoleTerm,consoleTerms/*,parseAll*/,checkTerm}
 import rewriter.Printer.{prettyPrintRule,prettyPrintSubst,prettyPrint,prettyPrintTrace}
 import rewriter.TRS.TRS
 import rewriter.Rewriter.{Term,applySubst,unify,mmatch,rewrite,rewriteTrace,normalise,normaliseTrace}
@@ -248,5 +248,5 @@ object Console {
        commandLoop(trs, None)
      }
    }
- }  
+ }
 }
