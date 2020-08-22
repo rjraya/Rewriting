@@ -1,0 +1,13 @@
+There are several directions that we could not follow during our summer stay, either because we did not have the time for it or because we were not aware of them.
+
+Firstly, we should note that the integration of Welder with Intellij Idea greatly improved our perception of the proving process with Welder. It may seem a minor aspect but from our experience debugging proofs (probably in aspects not related with the proof itself) was the most time-consuming activity for users of the tool. 
+
+More importantly, now we are more aware of what are the capabilities of the SMT $\to$ Inox $\to$ Welder stack. In particular, we were interested in the concept of tactic and our surprise was that our experiments did not show the alledged advantages of using them in the theorem prover. It may be the case that Inox's unrolling procedure is doing part of the work here or maybe we were not building properly the tactics. In any case, now we have the tools for inspecting closely the proving process and find out what is happening. Regarding theorem proving it may be also worth to read through "Designing a theorem prover" by L. Paulson in \cite{handbook}.
+
+We have given some remarks on term rewriting based on the notes that we took while working through \cite{term-rewriting}. We have put in context certain aspects specially using \cite{handbook}. However, we were not aware of the existence of any serious implementation of the concepts explained and our task focused on obtaining a quick way towards the completion procedures which are the real strength of the theory. Having done a careful study of the main concepts of term rewriting theory one should look at what existing solutions there are in the field. We found that Haskell has already such a library. See \cite{haskell1} and \cite{haskell2}. The question that remains to be answered is how to properly integrate term rewriting in Welder. We hope to answer this in the future. 
+
+Another topic that has attracted our attention and may be interesting for the future are Gr\"obner basis. The usual development of the topic \cite{ideals} for mathematicians does not present it as a term rewriting strategy as \cite{term-rewriting} does. Gr\"obner basis could be applied for theorem proving in geometry \cite{groebner}.
+
+
+
+

@@ -1,0 +1,273 @@
+\subsection{Universal algebra}
+
+\subsubsection{General notions}
+
+A way to formalize the notion of computation is to introduce multi-typed algebraic structures:
+
+\begin{definition}[Signature and algebra]
+A \textbf{signature} is given by:
+
+\begin{enumerate}
+\item A set $S \neq \emptyset$ of types or sorts.
+\item An indexed family in $S^{\star} \times S$: $$\{\Sigma_{w,s}:w \in S^{\star}, s \in S\}$$ where $c \in \Sigma_{\epsilon,s}$ is a constant of type $s$ and $\sigma \in \Sigma_{w = s(1) \ldots s(n),s}$ is an operation of type $(w,s)$ and arity $n$. 
+\end{enumerate}
+
+Normally, one denotes a signature as $\Sigma = (S,\{\Sigma_{w,s}:w \in S^{\star}, s \in S\})$.
+
+A \textbf{$\Sigma$-algebra} consists of:
+
+\begin{enumerate}
+\item A family $\{A_s:s \in S \}$ of data types.
+\item A family $\{\Sigma^A_{w,s}:w \in S^{\star}, s \in S\}$ such that:
+
+\begin{enumerate}
+\item $\forall s \in S.\Sigma_{\epsilon,s}^A = \{c_A:c \in \Sigma_{\epsilon,s} \}$ where $c_A \in A_s$ is a constant of type $s$ that instantiates the constant $c \in \Sigma_{\epsilon,s}$ for this algebra.
+
+\item $\forall w \in S^+,s \in S.\Sigma_{w,s}^A =\{\sigma_A:\sigma \in \Sigma_{w,s} \}$ where $\sigma_A \in \Sigma_{w = s(1) \ldots s(n),s}^A$ is a function: $$\sigma_A:A_{s(1)} \times \ldots \times A_{s(n)} \mapsto A_s$$ that interprets the function symbol $\sigma$ for this algebra.
+\end{enumerate}
+\end{enumerate}
+
+In other words, a $\Sigma$-algebra is an instantiation of the signature $\Sigma$ for particular data-types. It is denoted $(\{A_s:s \in S \},\{\Sigma^A_{w,s}:w \in S^{\star}, s \in S\})$.
+\end{definition}
+
+\begin{example}
+In the following examples, triples $(a;b;c)$ denote the set of data-types, constants and operations in this order. Note that the signature is implicit in most of the examples. 
+
+\begin{enumerate}
+\item Let $B = \{ \top,\bot \}$ be the set of truth values. Then $(B;\top,\bot; \lnot , \land , \lor , \oplus , \implies , \iff )$ is an algebra.
+
+\item Let $\mathbb{N}$ denote the set of natural numbers and $Succ$ be the successor function $Succ(n) = n+1$. Then $(\mathbb{N};0;Succ)$ is an algebra.
+
+\item Algebraic structures such as rings or fields are clearly examples of algebras.
+
+\item The most important example for us is the algebra of terms. In this case we explicitly name the underlying signature. 
+
+The signature $\Sigma$ will be given by a unique  data type $S = \{s\}$ a set of constants denoted $F_0$ and a family of functions denoted with $F = \cup_{n \in \mathbb{N}} F_n$ where $F_n$ gathers all the functions with arity $n$. 
+
+The instantiation data-type is the set of terms: $$T(\Sigma, X) = F_0 \cup X \cup \{f(t_1,\ldots,t_n):t_i \in T(\Sigma,X) \land f \in F_n \land n \in \mathbb{N} \}$$ Here $X$ is a set of variable symbols of type $s$ such that $X \cap F_0 = \emptyset$. 
+
+Finally, the algebra of terms is given by $T(\Sigma,X)$ as data-type, $F_0$ as a set of constants and a set of operations built from the signature: for each $f \in F_n$ one gives $F:T(\Sigma,X)^n \to T(\Sigma,X)$ such that $(t_1,\ldots,t_n) \mapsto f(t_1,\ldots,t_n)$.
+
+The algebra of terms is usually denoted by $T(\Sigma,X)$ (same notation as the underlying datatype).
+\end{enumerate}
+\end{example}
+
+As usual in mathematics, it is interesting to introduce the notion of substructure and homomorphism between structures:
+
+\begin{definition}[$\Sigma$-sub-algebra]
+Let $A,B$ be $\Sigma$-algebras indexed in $S$. $B$ is a sub-algebra of $A$, which we write, $B \le A$ if:
+
+\begin{enumerate}
+\item $\forall s \in S.B_s \subseteq A_s$
+\item $\forall s \in S,c \in \Sigma_{\epsilon,s}.c_B = c_A$. 
+\item $\forall s \in S,w \in S^{+},\sigma \in \Sigma_{w,s},(b_1,\ldots,b_n) \in B^{w}.\sigma_B(b_1,\ldots,b_n) = \sigma_A(b_1,\ldots,b_n)$
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Homomorphism of algebras]
+Let $A,B$ be two $\Sigma$-algebras indexed in $S$. 
+
+A $\Sigma$-homomorphism $\phi:A \to B$ is an $S$-indexed family of mappings $\phi = \langle \phi_s:A_s \to B_s:s \in S \rangle$ such that:
+
+\begin{enumerate}
+\item $\forall s \in S,c \in \Sigma_{\epsilon,s}.c_B = \phi_s(c_A)$
+\item $\forall w = s(1) \ldots s(n) \in S^+,s \in S,\sigma \in \Sigma_{w,s},(a_1,\ldots,a_n) \in A^w.\phi_s(\sigma_A(a_1,\ldots,a_n)) = \sigma_B(\phi_{s(1)}(a_1),\ldots,\phi_{s(n)}(a_n))$
+\end{enumerate}
+\end{definition}
+
+Of course, the notation is greatly simplified if we consider only one underlying data-type $S = \{s\}$.
+
+Our goal now is to show how the algebra of terms can be formally studied to make useful deductions.
+
+\subsubsection{Syntactic characterization of $\stackrel{*}{\leftrightarrow}$}
+
+\begin{definition}[Positions and size of a term]
+Given terms $s \in T(\Sigma,X)$ its \textbf{set of positions} is defined inductively as:
+
+\begin{enumerate}
+\item $s = x \in X \implies Pos(s) = \{\epsilon\}$
+\item $s = f(s_1,\cdots,s_n) \implies Pos(s) = \{\epsilon\} \bigcup \cup_{i=1}^{n} \{ip:p \in Pos(s_i)\}$
+\end{enumerate}
+
+We call the position $\epsilon$ root position and the function or variable symbol at this position is called the root symbol. 
+
+The \textbf{size} of $s \in T(\Sigma,X)$ is $|s| = |Pos(s)|$. 
+\end{definition}
+
+\begin{definition}[Order on positions]
+The prefix order is a partial order on the set of positions: 
+
+$p \leq q \iff \exists p'. pp' = q$
+
+With respect to $\leq$, we say $p,q$ are:
+
+\begin{enumerate}
+\item parallel, $p||q$, if they are incomparable.
+\item $p$ is above $q$, if $p \leq q$.
+\item $p$ is strictly above $q$, if $p < q$.   
+\end{enumerate} 
+\end{definition}
+
+
+\begin{definition}[Term operations]
+Given $p \in Pos(s)$ the \textbf{sub-term of s at position p}, $s|_p$, is defined by induction on the length of p:
+
+\begin{enumerate}
+\item $s|_\epsilon = s$
+\item $f(s_1,\cdots,s_n)|_{iq} = s_i|_q$. 
+\end{enumerate}
+
+The term obtained from $s$ by \textbf{replacing the sub-term at position p by t}, $s[t]_p$ is:
+
+\begin{enumerate}
+\item $s[t]_\epsilon = t$
+\item $f(s_1,\cdots,s_n)[t]_{iq} = f(s_1,\cdots,s_i[t]_q,\cdots,s_n)$
+\end{enumerate}
+
+Finally, $Var(s) = \{x \in X:\exists p \in Pos(s).s|_p = x\}$ denotes the \textbf{set of variables occurring in s} and the corresponding positions are called variable positions.
+\end{definition}
+
+\begin{definition}[Ground terms]
+$s \in T(\Sigma,X)$ is a \textbf{ground} term if $Var(s) = \emptyset$. $T(\Sigma)$ denotes the set of all ground terms over $\Sigma$.
+\end{definition}
+
+\begin{definition}[Substitutions]
+Suppose that $V$ is a countably infinite set of variables. 
+
+A \textbf{$T(\Sigma,V)$-substitution} is a function $\sigma:V \rightarrow T(\Sigma,V)$ such that $\sigma(x) \neq x$ for only finitely many variables. Associated with a substitution we have the following notions:
+
+\begin{enumerate}
+\item The \textbf{domain} of $\sigma$ is $Dom(\sigma) = \{x \in V: \sigma(x) \neq x\}$.
+\item The \textbf{range} of $\sigma$ is the set $Ran(\sigma) = \{\sigma(x):x \in Dom(\sigma)\}$.
+\item The \textbf{variable range} of $\sigma$ is $VRan(\sigma) = \cup_{x \in Dom(\sigma)} Var(\sigma(x))$.
+\end{enumerate}
+
+$Sub(T(\Sigma,V))$ denotes the set of all $T(\Sigma,V)$-substitutions.
+
+We \textbf{extend} the application of a substitution to terms as follows:
+
+Given $\sigma \in Sub$, define $\hat\sigma: T(\Sigma,V) \to T(\Sigma,V)$ such that $
+\hat\sigma(x)=
+\begin{cases}
+ \sigma(x)&\text{if}\, x \in V\\
+ f(\hat\sigma(s_1),\cdots,\hat\sigma(s_n))&\text{if}\, s = f(s_1,\cdots,s_n)
+\end{cases}$
+
+Then one can define the composition of $\sigma$ and $\tau$ as $\sigma\tau(x) = \hat\sigma(\tau(x))$. This has the following properties:
+
+\begin{enumerate}
+\item $\sigma\tau$ is again a substitution.
+\item The composition of substitutions is associative.
+\item $\hat{\sigma\tau} = \hat\sigma \hat\tau$
+\end{enumerate}
+
+An instance of term $s$ is a term $t$ such that  $\exists \sigma$ substitution such that $\sigma(s) = t$.  We note it as $t \gtrsim s$ and $t > s$ if the opposite relation does not hold. 
+\end{definition}
+
+\begin{definition}[Identities and reduction relation]
+An \textbf{$\Sigma$-identity} is a pair $(s,t) \in T(\Sigma,V) \times T(\Sigma,V)$. We write $s \approx t$ and call $s$ left-hand side and $t$ right-hand side.  
+
+Let $E$ be a set of $\Sigma$-identities. The \textbf{reduction relation} $\to_E \subseteq T(\Sigma,V) \times T(\Sigma,V)$ is defined as $$s \to_E t \iff \exists (l,r) \in E, p \in Pos(s), \sigma \in Sub. s|_p = \sigma(l) \land t = s[\sigma(r)]_p$$
+\end{definition}
+
+This relation is quite intuitive. We take the equation $(l,r)$ as a template, whose left part matches up to a transformation of a sub-term of the source term $s$. Then, we apply the equivalence $(l,r)$ and substitute the right term modified properly. This should give us all the derived terms. 
+
+\begin{definition}[Properties of binary relations on $T(\Sigma,V)$]
+Let $\equiv$ be a binary relation on $T(\Sigma,V)$. $\equiv$ is:
+
+\begin{enumerate}
+\item \textbf{closed under substitutions:} 
+
+$\forall s,t \in T(\Sigma,V), \sigma \in Sub. s \equiv t \implies \sigma(s) \equiv \sigma(t) $
+\item \textbf{closed under $\Sigma$-operations:}
+
+$\forall f \in \Sigma^{ar(f)},s_i,t_j \in T(\Sigma,V). (\forall i. s_i \equiv t_i) \implies f(s_1,\ldots,s_{ar(f)}) \equiv f(t_1,\ldots,t_{ar(f)}) $
+\item \textbf{compatible with $\Sigma$-operations:} 
+
+$\forall f \in \Sigma^{arg(f)}, s_j,s,t \in T(\Sigma,V). s \equiv t \implies f(s_1,\ldots,s_{i-1},s,s_{i+1},\ldots,s_{ar(f)}) \equiv f(s_1,\ldots,s_{i-1},t,s_{i+1},\ldots,s_{ar(f)})$
+\item \textbf{compatible with $\Sigma$-contexts:}
+
+$\forall t \in T(\Sigma,V),p \in Pos(t). s \equiv s' \implies t[s]_p \equiv t[s']_p$
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Characterization of $\stackrel{*}{\leftrightarrow}_E$]\label{3.1.12}
+1. Let E be a set of $\Sigma$-identities. The reduction relation $\to_E$ is closed under substitutions and compatible with $\Sigma$-operations. \\
+2. Given a binary relation $\equiv$ on $T(\Sigma,V)$:
+\begin{itemize}
+\item $\equiv$ is compatible with $\Sigma$-operations $\iff$ it is compatible with $\Sigma$-contexts.
+\item If $\equiv$ is reflexive and transitive then it is compatible with $\Sigma$-operations $\iff$ it is closed under $\Sigma$-operations.
+\end{itemize}
+
+3. Let E be a set of $\Sigma$-identities. The relation $\stackrel{*}{\leftrightarrow}_E$ is the smallest equivalence relation on $T(\Sigma,V)$ that contains E and is closed under substitutions and $\Sigma$-operations.
+\end{theorem}
+\begin{proof}
+1. Follows from definition.
+2. Definition and induction.
+3. Clearly, $\stackrel{*}{\leftrightarrow}$ contains E. By definition, $\stackrel{*}{\leftrightarrow}$ is an equivalence relation. Using parts 1,2 one shows that $\stackrel{*}{\leftrightarrow}$ is closed under substitutions and $\Sigma$-operations.
+
+Finally, one assumes that $\equiv$ is another equivalence relation containing E and closed under substitutions and $\Sigma$-operations. Then one shows that $s \to_E t \implies s \equiv t$. Since by definition, $\stackrel{*}{\leftrightarrow}$ is the smallest equivalence relation containing $\to_E$, we deduce that $\stackrel{*}{\leftrightarrow} \subseteq \equiv$.
+\end{proof}
+
+The last property, tells us that $\stackrel{*}{\leftrightarrow}_E$ is obtained from E, closing it under reflexivity, symmetry, transitivity, substitutions and $\Sigma$-operations. This process can be described with inferences rules and leads to \textbf{equational logic}:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|| c | c | c | c ||}
+\hline
+\hline \infer{E \vdash s \approx t}{ (s \approx t) \in E } \\
+\hline \infer{E \vdash t \approx t}{\vspace{1.5mm}}  \\
+\hline \infer{E \vdash t \approx s}{E \vdash s \approx t} \\
+\hline \infer{E \vdash s \approx u}{E \vdash s \approx t & t \approx u} \\
+\hline \infer{E \vdash \sigma(s) \approx \sigma(t)}{E \vdash s \approx t} \\
+\hline \infer{E \vdash f(s_1,\ldots,s_n) \approx f(t_1,\ldots,t_n)}{E \vdash s_1 \approx t_1 & \ldots & s_n \approx t_n} \\
+\hline
+\end{tabular}
+\caption{Inference rules of equational logic}
+\label{table:inf1}
+\end{table}
+
+We note $E \vdash s \approx t$ to specify that $s \approx t$ can be obtained from $E$ applying the above rules. We read it as "$s \approx t$ is a syntactic consequence of E". The first rule receives the special name of \textbf{assumption rule}. One can also build \textbf{proof trees} by composing inference rules in the usual manner. There are however differences to note between both approaches:
+
+1. The rewriting approach given by the computation of $\stackrel{*}{\leftrightarrow}$ allows the replacement of a sub-term at an arbitrary position in a single step (choosing $l \approx r,\sigma,p$). The inference rule approach needs to simulate this by many small steps of closure under single operations. 
+
+2. Closure under operations in the inference rule approach allows the simultaneous replacement in each argument of an operation. The rewriting approach needs to simulate this by a number of replacements steps in sequence. 
+
+\subsubsection{Semantic characterization of $\stackrel{*}{\leftrightarrow}$}
+
+\begin{definition}[Models for a set of identities]
+Let $\mathcal{A}$ be a $\Sigma$-algebra  and $s \approx t$ a $\Sigma$-identity:
+
+$s \approx t$ \textbf{holds} in $\mathcal{A} \iff \forall \phi:T(\Sigma,V) \to A$ homomorphism.$\phi(s) = \phi(t)$.
+
+In that case, we denote it as $\mathcal{A} \models s \approx t$.
+
+Let E be a set of $\Sigma$-identities. 
+
+$\mathcal{A}$ is a \textbf{model} of E $\iff \forall (s \approx t) \in E. \mathcal{A} \models s \approx t$. 
+
+In that case, we denote it as $\mathcal{A} \models E$ and $\nu(E)$ the class of all models or  \textbf{$\Sigma$-variety} defined by E.
+\end{definition}
+
+Here we stress the use of word "identity" for a pair of term $s \approx t$ to express that this equality is assumed to hold in an algebra. The word "equation" is used to express that the equality must be solved in an algebra. This reduces to a universally or existentially quantified goal. 
+
+\begin{definition}[Equational theory]
+$s \approx t$ is a \textbf{semantic consequence} of E $\iff \forall \mathcal{A} \in \nu(E).\mathcal{A} \models s \approx t$.
+
+In that case, we denote it as $E \models s \approx t$.
+
+The relation $\approx_E = \{(s,t) \in T(\Sigma,V) \times T(\Sigma,V):E \models s \approx t\}$ is the \textbf{equational theory} induced by E. 
+\end{definition}
+
+\begin{theorem}[Birkhoff's theorem]
+Let E be a set of identities. 
+
+The syntactic consequence relation $\stackrel{*}{\leftrightarrow}$ coincides with the semantic consequence relation $\approx_E$. 
+
+Alternatively, we say that $\vdash$ and $\models$ coincide. 
+\end{theorem}
+
+The meaning of these theorem is that the syntactic procedure always leads to valid equations and that any valid equations can be obtained through the syntactic procedure. 
+
+
+

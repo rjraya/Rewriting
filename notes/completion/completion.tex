@@ -1,0 +1,179 @@
+\subsection{A basic completion algorithm}
+
+Given a set of identities $E$ we want to find a convergent term rewriting system $R$ equivalent to $E$, that is, $\approx_E = \approx_R$. In this section we limit ourselves to give a basic completion algorithm trying to precise the meaning of the concepts implied. 
+
+As a further remark, we should note that this algorithm would give the convergent reduction system for the word problem of our motivation on groups. \cite{handbook} deduces formally from page 45-49 this particular case obtaining the completed system:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|| c | c | c | c ||}
+\hline
+\hline  $e \cdot x \to x$ \\
+\hline $x^{-1}x \to e$ \\
+\hline $(x \cdot y) \cdot z \to x \cdot (y \cdot z)$ \\
+\hline $x^{-1}(xz) \to z$ \\
+\hline $ye \to y$ \\
+\hline $(y^{-1})^{-1} \to y$ \\
+\hline $e^{-1} \to e$ \\
+\hline $y \cdot y^{-1} \to e$ \\
+\hline $y \cdot (y^{-1} \cdot x) \to x$ \\
+\hline $(x \cdot y)^{-1} \to y^{-1}x^{-1}$ \\
+\hline
+\end{tabular}
+\caption{Completed system for the word problem of groups}
+\label{table:grupos}
+\end{table}
+
+Before the statement of the completion algorithm we need to define some of the notions involved.
+
+\subsubsection{Term rewriting systems}
+
+\begin{theorem}[Equational theory of convergent system is  decidable]\label{4.1.1}
+If E is finite and $\to_E$ is convergent then $\approx_E$ is decidable.
+\end{theorem}
+\begin{proof}
+By the equivalence test with normal forms, $\stackrel{*}{\leftrightarrow}_E t \iff s\downarrow_E = t\downarrow_E$. We need to show that operator $\downarrow_E$ is decidable.  This reduces to determine whether a term $u$ is in normal form or not. To do so, we pick $(l \approx r) \in E$, $p \in Pos(u)$ and check if there is a substitution $\sigma$ such that $u|_p = \sigma(l)$ . If there isn't such a substitution then we have a normal form. If there is such a substitution then one iterates the process with $u[\sigma(r)]|_p$. This iteration must terminate because $\to_E$ is terminating. And determining the existence of such a substitution can be done in linear time (exercise 4.24 of the book).  
+\end{proof}
+
+\begin{definition}[Word problem]
+The \textbf{word problem} for E is the problem of deciding $s \approx_E t$ for $s,t \in T(\Sigma,V)$. The \textbf{ground word problem} for E is the word problem restricted to ground term $s,t \in T(\Sigma,\emptyset)$.
+\end{definition}
+
+\begin{definition}[Term rewriting systems]
+A \textbf{rewrite rule} is an identity $l \approx r$ such that l is not a variable and $Var(l) \supseteq Var(r)$. 
+
+A \textbf{term rewriting system (TRS)} is a set of rewrite rules. The default notation is R. 
+
+In the context of TRS, a \textbf{reducible expression (redex)} is an instance of the lhs of a rewrite rule and \textbf{contracting} the redex means replacing it with the corresponding instance of the rhs of the rule. 
+\end{definition}
+
+Given that any TRS R is a particular set of identities, we will use notation $\to_R$ for the rewrite relation induced by $R$ and we will say that R is terminating, confluent, convergent, etc. if $\to_R$ has the corresponding properties. In this context, the previous theorem reformulates as follows (any terminating system is a TRS): 
+
+\begin{corollary}[Equational theory of convergent term rewriting systems is  decidable]
+If R is a finite convergent TRS, $\approx_R$ is decidable: $s \approx_R t \iff s \downarrow_R = t \downarrow_R$.
+\end{corollary}
+
+\begin{definition}[Reduction order]
+Let $\Sigma$ be a signature and $V$ be a countably infinite set of variables. 
+
+A strict order $>$ (irreflexive, asymmetric, transitive) on $T(\Sigma,V)$ is called a \textbf{rewrite order} if and only if:
+
+\begin{enumerate}
+\item compatible with $\Sigma$-operations
+\item closed under substitutions
+\end{enumerate}
+
+A \textbf{reduction order} is a well-founded rewrite order.
+\end{definition}
+
+\begin{theorem}[Motivation for reduction orders]
+Let $R$ be a term rewriting system. 
+
+$R$ terminates $\iff \exists$ a reduction order $>$ such that $\forall (l \to r) \in R.l > r$. 
+\end{theorem}
+\begin{proof}
+$\Rightarrow)$ Choose $\stackrel{+}{\to_R}$ as reduction order.
+
+$\Leftarrow)$ Use definitions to show that hypothesis imply that $\forall s_1,s_2 \in T(\Sigma,V).s_1 \to_R s_2 \implies s_1 > s_2$. Since $>$ is well-founded, an infinite chain $s_1 \to_R s_2 \to_R \ldots$ gives an infinite chain $s_1 > s_2 > \ldots$ which gives a contradiction.
+\end{proof}
+
+\subsubsection{Critical pairs}
+
+The last theorem of the previous section gives us the tool that will guarantee the construction of a terminating system in the completion algorithm. We know deal with the notion that will guarantee the construction of a confluent system. We profit to remark that deciding if a TRS is terminating or confluent is undecidable in the general case. 
+
+
+\begin{definition}[Most general substitutions and renamings]
+A substitution $\sigma$ is \textbf{more general} than a substitution $\sigma'$ if there is a substitution $\delta$ such that $\sigma' = \delta \sigma$. In this case we write $\sigma \lesssim \sigma'$. We also say that $\sigma'$ is an \textbf{instance} of $\sigma$. 
+
+We write $\sigma \sim \sigma' \iff \sigma \lesssim \sigma' \land \sigma \gtrsim \sigma'$. 
+
+A \textbf{renaming} is a substitution that acts as a bijection on the set of variables $V$. 
+\end{definition}
+
+\begin{definition}[Syntactic unification problem]
+Given $E$ a set of identities and two terms s,t, find a substitution $\sigma$ such that $\sigma s \approx_E \sigma t$. 
+
+It is an undecidable problem.
+
+We focus in the case $E = \emptyset$. In this case, $\sigma s \approx_\emptyset \sigma t \equiv \sigma s = \sigma t$ and such a $\sigma$ is called a unifier of s and t or a solution of equation $s =^{?} t$.
+
+A \textbf{unification problem} is a finite set of equations $S = \{s_i =^? t_i:i \in \{1,\ldots,n \}\}$. 
+
+A \textbf{unifier or solution} of S is a substitution such that $\forall i \in \{1,\ldots,n\}.\sigma s_i = \sigma t_i$. 
+
+Let $\mathcal{U}(S)$ be the set of all unifiers of S, so that S is unifiable if $\mathcal{U}(S) \neq \emptyset$.
+
+A \textbf{most general unifier (mgu)} of S is a least element of $\mathcal{U}(S)$, that is: 
+
+$\sigma \in Sub$ such that $\sigma \in \mathcal{U}(S) \land \forall \sigma' \in \mathcal{U}(S). \sigma \lesssim \sigma'$.   
+\end{definition}
+
+\begin{definition}[Critical pair]
+Let $l_i \to r_i$ with $i = 1,2$ be two rules whose variables have been renamed in a way that $Var(l_1,r_1) \cap Var(l_2,r_2) = \emptyset$. 
+
+Let $p \in Pos(l_1)$ be such that $l_1|_p$ is not a variable and let $\theta$ be a mgu of $l_1|_p =^{?} l_2$. This determines a \textbf{critical pair} $\langle \theta r_1,(\theta l_1)[\theta r_2]_p \rangle$.
+
+The set of all critical pairs is denoted by $CP(R)$. 
+\end{definition}
+
+In particular, one can see that critical pairs are formed by equational consequences of $R$ using the syntactic characterization and Birkhoff's theorem. 
+
+\begin{proposition}[Properties of critical pairs]
+We state the necessary elements to make critical pairs useful for the theory:
+
+\begin{enumerate}
+\item Critical Pair Lemma: 
+
+If $s \to_R t_1,t_2$ then $t_1 \downarrow_R t_2 \lor \exists u_1,u_2. t_i = s[u_i]_p$ and $\langle u_1,u_2 \rangle$ or $\langle u_2,u_1 \rangle$ are critical pairs of $R$. 
+\item Critical Pair Theorem: A TRS is locally confluent $\iff$ all its critical pairs are joinable. 
+\item A terminating TRS is confluent $\iff$ all its critical pairs are joinable.
+\item Confluence of a finite and terminating TRS $R$ is decidable. 
+\end{enumerate}
+\end{proposition}
+
+\subsubsection{The basic algorithm}
+
+The basic completion procedure works as follows. In a first initialization step it removes the trivial identities $s \approx s$ and tries to orient the remaining non-trivial identities according to the reduction order. 
+
+Then, it computes all critical pairs of the rewrite system obtained. The terms in each pair are reduced to its normal forms. If identical the pairs are joinable and we are done. In other case, one tries to orient the normal terms into a rewrite rule whose termination can be shown using $>$ and adds the rewrite rule to the current rewrite system. 
+
+The process is iterated until failure or until the current rewrite system remains unchanged in an iteration which would mean that the system does not have non-joinable critical pairs, that is, it is confluent.  
+
+\begin{algorithm}[H]
+\caption{Basic completion procedure}
+\hspace*{\algorithmicindent} \textbf{Input:} A finite set $E$ of $\Sigma$-identities and a reduction order $>$ on $T(\Sigma,V)$. \\
+\hspace*{\algorithmicindent} \textbf{Output:} A finite convergent term rewriting system $R$ that is equivalent to $E$, if the procedure terminates successfully. Otherwise, it returns "Fail". \\
+\hspace*{\algorithmicindent} \textbf{Initialization:} If there exists $(s \approx t) \in E$ such that $s \neq t,s \not> t, t \not> s$ (the rule cannot be oriented) then terminate with output "Fail". Otherwise $i = 0$, $R_0 = \{l \to r:(l \approx r) \in E \cup E^{-1} \land l > r \}$
+
+\begin{algorithmic}
+\Repeat
+
+\State $R_{i+1} = R_i$
+\ForAll{$\langle s,t \rangle \in CP(R_i)$} do
+
+\State Reduce $s,t$ to some $R_i$-normal forms $\hat s,\hat t$.
+\State If $\hat s \neq \hat t$ and $! (\hat s > \hat t \lor \hat t > \hat s)$ then terminate with output "Fail".
+\State If $\hat s > \hat t$ then $R_{i+1} \cup \{\hat s \to \hat t \}$.
+\State If $\hat t > \hat s$ then $R_{i+1} = R_{i+1} \cup \{\hat t \to \hat s \}$
+\EndFor
+\State $i = i+1$
+\Until $R_i = R_{i-1}$
+\State output $R_i$
+\end{algorithmic}
+\end{algorithm}
+
+The algorithm can therefore yield three different behaviours (see details in \cite{term-rewriting}):
+
+\begin{enumerate}
+\item End with failure. One can try a different reduction order. 
+\item End successfully. We obtain a finite convergent TRS equivalent to E which gives a decision procedure for the word problem for $\approx_E$. 
+\item Loop forever. In this case the union of all the partial TRS is an infinite convergent TRS equivalent to $E$ which gives a semi-decision procedure for $\approx_E$.
+\end{enumerate}
+
+We leave for the future to investigate and implement the practical variations of this algorithm.
+
+
+
+
+
+

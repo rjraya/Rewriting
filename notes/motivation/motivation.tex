@@ -1,0 +1,44 @@
+\subsection{Motivation}
+
+After the practical work that we carried out to improve the way in which the developer relates with Welder, it turned out that more interesting strategies were necessary to turn Welder into a real proof assistant. We found a possible solution in \cite{term-rewriting} and used \cite{handbook} as further support.
+
+As a motivating example, we consider the problem of determining if a given equation holds in group theory. This is not far from our elliptic curve project, since in several occasions we had to manually deduce easy properties of fields that only require basic reasoning.  Given the axioms that define a group: \begin{alignat*}{5}
+(G1) \; & (xy)z \; & \approx & \; x(yz) \\
+(G2) \; & ex  \; & \approx & \;  x \\
+(G3) \; & x^{-1}x \; & \approx & \; e 
+\end{alignat*} where as usual $e$ denotes the neutral element of the group and $x^{-1}$ denotes the inverse. We can for instance try to decide if equation $e = xx^{-1}$ holds. This is the so-called word problem:
+
+\begin{definition}[The word problem informally]
+Given a set of identities $E$ and two terms $s,t$, determine if it is possible to derive $t$ from $s$ using $E$ as a set of rewriting equations in both directions. 
+\end{definition}
+
+Using $E = \{G_1,G_2,G_3\}$ we can derive term $t = xx^{-1}$ from term $s = e$: $$e \stackrel{G3}{\approx} (xx^{-1})^{-1}(xx^{-1}) \stackrel{G2}{\approx} (xx^{-1})^{-1}(x(ex^{-1})) \stackrel{G3}{\approx} (xx^{-1})^{-1}(x((x^{-1}x)x^{-1}))
+\stackrel{G1}{\approx} (xx^{-1})^{-1}((x(x^{-1}x))x^{-1})
+$$ $$
+\stackrel{G1}{\approx} (xx^{-1})^{-1}(((xx^{-1})x)x^{-1})
+\stackrel{G1}{\approx} (xx^{-1})^{-1}((xx^{-1})(xx^{-1}))
+\stackrel{G1}{\approx} ((xx^{-1})^{-1}(xx^{-1}))(xx^{-1})
+\stackrel{G3}{\approx} e(xx^{-1})
+\stackrel{G2}{\approx} xx^{-1}
+$$
+
+It is clear that the amount of rewriting operations is unacceptable. Term rewriting proposes another strategy. One considers the identities in $E$ as uni-directional rewrite rules: \begin{alignat*}{5}
+(RG1) \; & (xy)z \; & \to & \; x(yz) \\
+(RG2) \; & ex  \; & \to & \;  x \\
+(RG3) \; & x^{-1}x \; & \to & \; e 
+\end{alignat*} Here the idea is that identities will be only be applied in the direction that simplifies a given term. The strategy is to look for terms such that no more rules apply, so-called normal forms. Given two terms $s,t$ we could:
+
+\begin{enumerate}
+\item Reduce them to normal forms $\hat s, \hat t$.
+\item Check whether $\hat s, \hat t$ are syntactically equal.
+\end{enumerate}
+
+There are two problems with this approach:
+
+\begin{enumerate}
+\item Equivalent terms can have distinct normal forms. For instance, $xx^{-1}$ and $e$ are normal forms with respect to (RG1) and (RG2) and we have shown they are equivalent. The above method would fail because they are syntactically distinct. The property needed to have uniqueness of normal forms is called confluence. 
+
+\item Normal forms may not exist. the process of reducing a term can lead to an infinite chain of rule applications. The property that ensures the existence of normal forms is called termination. 
+
+If the rewrite system is not confluent we can use a technique called completion to extend it to a confluent one. In the case of groups, there exists a confluent and terminating extension.
+\end{enumerate}

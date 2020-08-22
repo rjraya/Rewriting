@@ -1,0 +1,41 @@
+\subsection{Adding the first "naive" tactics}
+
+During the course, we learnt that much of the effort in proving theorems happens while finding the appropiate inductive hypothesis. In fact, many direct goals are not solved by the underlying SMT solver. 
+
+On the other hand, most of the literature that we are aware of works at low level on the SMT solver such as in \cite{leino} or \cite{kuncak}. We carried out experiments to use some of the strategies described in these papers but the results did not change. 
+
+Therefore, we concluded that in order to provide a first example of tactic in Welder it should be as simple as a method that allows the user to perform automatic induction by providing automatically the inductive hypothesis on the sub-trees of the algebraic data types. 
+
+Here is an example of how this new syntax would look 
+like:
+
+\begin{lstlisting}[caption=Proposed induct syntax,captionpos = b]
+lazy val lemma: Theorem = {
+ def property(l: Expr) = {
+  forall("i" :: IntegerType, "j" :: IntegerType){ case (i,j) =>
+   (i >= 0 && j >= 0) ==> (drop(l,i+j) === drop(drop(l,j),i))
+  }
+ }
+ induct(property _, "l" :: T(list))
+}
+\end{lstlisting} 
+
+The above example would succeed in proving $\forall l: List,i:Nat,j:Nat.drop(l,i+j) === drop(drop(l,j),i)$. In any case, we recommend to use the version of Welder used in the online reference of the project \cite{project} for testing the examples. 
+
+Essentially the two summarized versions of the induction constructs we implemented are as follows:
+
+\begin{lstlisting}[caption=Proposed induct signatures to be found in Tactics.scala,captionpos = b]
+def induct(property: Expr => Expr, valDef: ValDef): Attempt[Theorem] 
+def natInduct(property: Expr => Expr, base: Expr,
+              baseCase: Goal => Attempt[Witness]): Attempt[Theorem] 
+\end{lstlisting} 
+  
+which perform structural and natural induction respectively. 
+
+It was not easy to find other easy examples of implementable tactics which motivates the second part of our work in which we tried to investigate Term Rewriting techniques in order to solve automatically theorems that we proved in the elliptic curves work carried out during the semester. 
+
+
+
+
+
+

@@ -1,0 +1,215 @@
+%-----------------------------------------------------------------------------------------------------
+%	INCLUSIÓN DE PAQUETES BÁSICOS
+%-----------------------------------------------------------------------------------------------------
+\documentclass{article}
+%--------------------------------------------------------------------------------------------------
+%	SELECCIÓN DEL LENGUAJE
+%--------------------------------------------------------------------------------------------------
+
+\usepackage[utf8]{inputenc}                           \usepackage{changepage} % adjust table
+
+%--------------------------------------------------------------------------------------------------
+%	SELECCIÓN DE LA FUENTE
+%--------------------------------------------------------------------------------------------------
+% Fuente utilizada.
+\usepackage{courier}                    % Fuente Courier.
+\usepackage{microtype}                  
+%--------------------------------------------------------------------------------------------------
+%	ALGORITMOS
+%--------------------------------------------------------------------------------------------------
+\usepackage{algpseudocode}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\renewcommand{\thealgorithm}{}
+%--------------------------------------------------------------------------------------------------
+%	IMÁGENES
+%--------------------------------------------------------------------------------------------------
+\usepackage{float}
+\usepackage{placeins}
+%--------------------------------------------------------------------------------------------------
+%	ESTILO DE PÁGINA
+%--------------------------------------------------------------------------------------------------
+% Paquetes para el diseño de página:
+\usepackage{fancyhdr}              
+\usepackage{lastpage}              
+\usepackage{extramarks}             
+\usepackage[parfill]{parskip}      
+\usepackage{geometry}               
+\pagestyle{fancy}
+\geometry{left=3cm,right=3cm,top=3cm,bottom=3cm,headheight=1cm,headsep=0.5cm} 
+\fancyhf{}
+\linespread{1.1}                        % Espacio entre líneas.
+\setlength\parindent{0pt}               % Selecciona la indentación para cada inicio de párrafo.
+\renewcommand\headrule{
+	\begin{minipage}{1\textwidth}
+	    \hrule width \hsize
+	\end{minipage}
+}
+% Texto de la cabecera:
+\lhead{\subject}                          % Parte izquierda.
+\chead{}                                    % Centro.
+\rhead{\doctitle \ - \docsubtitle}              % Parte derecha.
+% Pie de página del documento. Se ajusta la línea del pie de página.
+\renewcommand\footrule{
+\begin{minipage}{1\textwidth}
+    \hrule width \hsize
+\end{minipage}\par
+}
+\lfoot{}                                                 % Parte izquierda.
+\cfoot{}                                                 % Centro.
+\rfoot{Page\ \thepage\ de\ \protect\pageref{LastPage}} % Parte derecha.
+
+
+%----------------------------------------------------------------------------------------
+%   MATEMÁTICAS
+%----------------------------------------------------------------------------------------
+
+% Paquetes para matemáticas:
+\usepackage{amsmath, amsthm, amssymb, amsfonts, amscd}
+\usepackage{proof}
+ % Teoremas, fuentes y símbolos.
+\usepackage{tikz-cd} % para diagramas conmutativos
+\usepackage[mathscr]{euscript}
+\let\euscr\mathscr \let\mathscr\relax% just so we can load this and rsfs
+\usepackage[scr]{rsfso}
+\newcommand{\powerset}{\raisebox{.15\baselineskip}{\Large\ensuremath{\wp}}}
+ % Nuevo estilo para definiciones
+ \newtheoremstyle{definition-style}
+ {5pt}               
+ {0pt}                
+ {}                  
+ {}                   
+ {\bf}             
+ {.}                 
+ {\newline}               
+ {}                 
+
+ % Nuevo estilo para teoremas
+ \newtheoremstyle{theorem-style} % Nombre del estilo
+ {5pt}                % Espacio por encima
+ {0pt}                % Espacio por debajo
+ {\itshape}           % Fuente del cuerpo
+ {}                   % Identación: vacío= sin identación, \parindent = identación del parráfo
+ {\bf}                % Fuente para la cabecera
+ {.}                  % Puntuación tras la cabecera
+ {\newline}               % Espacio tras la cabecera: { } = espacio usal entre palabras, \newline = nueva línea
+ {}                   % Especificación de la cabecera (si se deja vaía implica 'normal')
+
+ % Nuevo estilo para ejemplos y ejercicios
+ \newtheoremstyle{example-style} % Nombre del estilo
+ {5pt}                % Espacio por encima
+ {0pt}                % Espacio por debajo
+ {}                   % Fuente del cuerpo
+ {}                   % Identación: vacío= sin identación, \parindent = identación del parráfo
+ {\scshape}                % Fuente para la cabecera
+ {:}                  % Puntuación tras la cabecera
+ {.5em}               % Espacio tras la cabecera: { } = espacio usal entre palabras, \newline = nueva línea
+ {}                   % Especificación de la cabecera (si se deja vaía implica 'normal')
+
+ % Teoremas:
+ \theoremstyle{theorem-style}  
+ \newtheorem{theorem}{Theorem}[section]  
+ \newtheorem{corollary}[theorem]{Corollary} 
+ \newtheorem{lemma}[theorem]{Lemma}
+ \newtheorem{proposition}[theorem]{Proposition}
+
+ % Definiciones, notas, conjeturas
+ \theoremstyle{definition-style}
+ \newtheorem{definition}{Definition}[section]
+ \newtheorem{conjecture}{Conjecture}[section]
+ \newtheorem*{note}{Note} 
+
+ % Ejemplos, ejercicios
+ \theoremstyle{example-style}
+ \newtheorem{example}{Example}[section]
+ \newtheorem{exercise}{Ejercicio}[section]
+ 
+ % Listas ordenadas con números romanos (i), (ii), etc.
+\newenvironment{nlist}
+{\begin{enumerate}
+\renewcommand\labelenumi{(\emph{\roman{enumi})}}}
+{\end{enumerate}}
+%commutative-diagrams
+\usepackage{tikz-cd}
+% code listings 
+\usepackage{listings}
+
+%-----------------------------------------------------------------------------------------------------
+%	BIBLIOGRAFÍA
+%-----------------------------------------------------------------------------------------------------
+
+\usepackage[backend=bibtex, style=numeric, sorting = none]{biblatex}
+\usepackage{csquotes}
+
+\addbibresource{references.bib}
+
+%-----------------------------------------------------------------------------------------------------
+%	PORTADA
+%-----------------------------------------------------------------------------------------------------
+% Elija uno de los siguientes formatos.
+% No olvide incluir los archivos .sty asociados en el directorio del documento.
+\usepackage{title1}
+%\usepackage{title2}
+%\usepackage{title3}
+
+%-----------------------------------------------------------------------------------------------------
+%	TÍTULO, AUTOR Y OTROS DATOS DEL DOCUMENTO
+%-----------------------------------------------------------------------------------------------------
+
+% Título del documento.
+\newcommand{\doctitle}{Term rewriting}
+% Subtítulo.
+\newcommand{\docsubtitle}{}
+% Fecha.
+\newcommand{\docdate}{}
+% Asignatura.
+\newcommand{\subject}{}
+% Autor.
+\newcommand{\docauthor}{Rodrigo Raya Castellano}
+\newcommand{\docaddress}{}
+\newcommand{\docemail}{}
+
+%-----------------------------------------------------------------------------------------------------
+%	RESUMEN
+%-----------------------------------------------------------------------------------------------------
+
+% Resumen del documento. Va en la portada.
+% Puedes también dejarlo vacío, en cuyo caso no aparece en la portada.
+%\newcommand{\docabstract}{}
+\newcommand{\docabstract}{}
+
+\begin{document}
+
+\maketitle
+
+%-----------------------------------------------------------------------------------------------------
+%	ÍNDICE
+%-----------------------------------------------------------------------------------------------------
+
+% Profundidad del Índice:
+%\setcounter{tocdepth}{1}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Motivating examples}
+
+\input{motivation/motivation}
+
+\section{Term rewriting}
+
+\input{reduction/reduction}
+\input{universal/universal}
+\input{completion/completion}
+\newpage
+
+\section{Conclusion and future work}
+
+\input{future/future}
+\newpage
+\nocite{*}
+\printbibliography
+
+
+\end{document}
